@@ -1,0 +1,33 @@
+#!/bin/bash
+
+AUDIO_DIR="$HOME/AUDIOS"
+OUTPUT_DIR="$HOME/TRANSCRITOS"
+
+# Loop over .opus and .ogg files
+for file in "$AUDIO_DIR"/*.{opus,ogg}; do
+    # Skip if no matching files
+    [ -e "$file" ] || continue
+
+    # Extract base filename (no extension, no path)
+    filename=$(basename "$file")
+    base="${filename%.*}"
+
+    # Skip if transcription already exists
+    if [ -f "$OUTPUT_DIR/$base.txt" ]; then
+        echo "Skipping $filename (already transcribed)"
+        continue
+    fi
+
+    echo "Converting $filename to MP3..."
+
+    # Convert to .mp3 in a temp location
+    ffmpeg -y -i "$file" -codec:a libmp3lame -qscale:a 2 "/tmp/$base.mp3"
+
+    echo "Waiting 30 seconds before transcribing $base..."
+    sleep 30
+
+    echo "Transcribing $base.mp3 with Whisper..."
+    whisper "/tmp/$base.mp3" --output_format txt --output_dir "$OUTPUT_DIR"
+
+    echo "Done: $base.txt"
+done
