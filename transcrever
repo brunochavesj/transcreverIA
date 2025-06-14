@@ -27,7 +27,7 @@ for file in "$AUDIO_DIR"/*.{opus,ogg}; do
     sleep 30
 
     echo "Transcribing $base.mp3 with Whisper..."
-    whisper "/tmp/$base.mp3" --output_format txt --output_dir "$OUTPUT_DIR"
+    whisper --language pt "/tmp/$base.mp3" --output_format txt --output_dir "$OUTPUT_DIR"
 
     echo "Done: $base.txt"
 done
